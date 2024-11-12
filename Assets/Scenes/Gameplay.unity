@@ -253,7 +253,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 4, y: 4, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -351,6 +351,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1096834403}
   - component: {fileID: 1096834402}
+  - component: {fileID: 1096834404}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -386,6 +387,32 @@ Transform:
   - {fileID: 1363651975}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1096834404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1096834401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af74e778d983de94fa377a37b5a0aa27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ancho: 8
+  altura: 8
+  suelos:
+  - {fileID: 11400000, guid: 8b1d77c878329e74ea7a6b1e2072e0f7, type: 2}
+  - {fileID: 11400000, guid: 205683ee90422594582a0cbc5d7dfa87, type: 2}
+  - {fileID: 11400000, guid: c1a6a8ca1570d8c449b5b2f7530a27c7, type: 2}
+  - {fileID: 11400000, guid: 31a253e7ad126ae43b13a9e102c0dced, type: 2}
+  - {fileID: 11400000, guid: b2c7968db0d457142bd978ad361bbbf8, type: 2}
+  - {fileID: 11400000, guid: 71b8d6773b4f78e4fa92f07ef6488f75, type: 2}
+  - {fileID: 11400000, guid: a4ab265944aec754193b5236d0f646f8, type: 2}
+  - {fileID: 11400000, guid: 34500ec09110d8447bbc625b25d99f2d, type: 2}
+  paredes:
+  - {fileID: 11400000, guid: 7a3e2a51610d0e743b3a5ee9523f3fa0, type: 2}
+  - {fileID: 11400000, guid: 29d0f1c6a1fa3d04bbf4285a64e3399f, type: 2}
 --- !u!1 &1363651974
 GameObject:
   m_ObjectHideFlags: 0
@@ -478,15 +505,39 @@ Tilemap:
   m_Enabled: 1
   m_Tiles: {}
   m_AnimatedTiles: {}
-  m_TileAssetArray: []
-  m_TileSpriteArray: []
-  m_TileMatrixArray: []
-  m_TileColorArray: []
+  m_TileAssetArray:
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  m_TileSpriteArray:
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  m_TileMatrixArray:
+  - m_RefCount: 0
+    m_Data:
+      e00: 7.0684684e+28
+      e01: 0
+      e02: 4.1020815e-29
+      e03: 4.1020815e-29
+      e10: 2.7900757e+20
+      e11: 0
+      e12: 8.77e-43
+      e13: 8.77e-43
+      e20: 3.8846543e+11
+      e21: -785.167
+      e22: -0.0000000016878738
+      e23: -7.4818e-41
+      e30: 4.5904e-41
+      e31: 8.8e-43
+      e32: 8.77e-43
+      e33: 8.8e-43
+  m_TileColorArray:
+  - m_RefCount: 0
+    m_Data: {r: 3.9674e-41, g: 3.9674e-41, b: 3.9674e-41, a: 3.9674e-41}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: 0, y: 0, z: 0}
-  m_Size: {x: 0, y: 0, z: 1}
+  m_Origin: {x: -9, y: -5, z: 0}
+  m_Size: {x: 18, y: 10, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
