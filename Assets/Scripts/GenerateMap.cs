@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-
+public enum Directions
+{
+    Up, Down, Left, Right
+}
 
 public class GenerateMap : MonoBehaviour
 {
@@ -12,11 +16,15 @@ public class GenerateMap : MonoBehaviour
     public int altura;
     public Tile[] suelos;
     public Tile[] paredes;
-
+    public GameObject player;
+    public Vector2Int posInicialPlayer;
 
     //PRIVATE
     private Tilemap m_Mapa;
     private CellData[,] m_BoardData;
+    private Vector3 m_playerPositionInCells;
+    private Vector2Int m_playerCurrentPositionInCells;
+    private Grid m_Grid;
 
     public class CellData
     {
@@ -30,6 +38,7 @@ public class GenerateMap : MonoBehaviour
         ancho = Mathf.RoundToInt(ancho);
         altura = Mathf.RoundToInt(altura);
         m_Mapa = GetComponentInChildren<Tilemap>();
+        m_Grid = GetComponent<Grid>();    
 
         m_BoardData = new CellData[ancho, altura];
 
@@ -68,6 +77,60 @@ public class GenerateMap : MonoBehaviour
 
             }
         }
-        
+
+        //encuentro un punto en el mapa para el inicio del player
+        player.GetComponent<PlayerController>().Spawn(this, new Vector2Int(posInicialPlayer.x, posInicialPlayer.y));
+        m_playerCurrentPositionInCells = new Vector2Int(posInicialPlayer.x, posInicialPlayer.y);
     }
+
+    public Vector3 CellToWorld (Vector2Int cellIndex)
+    {
+        return m_Grid.GetCellCenterWorld((Vector3Int)cellIndex);
+    }
+
+    public void MovePlayer(Directions direction)
+    {
+
+        Vector2Int startedPosition = m_playerCurrentPositionInCells;
+
+        switch (direction)
+        {
+            case Directions.Up:
+                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y + 1);
+                break;
+            case Directions.Down:
+                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y - 1);
+                break;
+            case Directions.Left:
+                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x - 1, m_playerCurrentPositionInCells.y);
+                break;
+            case Directions.Right:
+                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x + 1, m_playerCurrentPositionInCells.y);
+                break;
+            default:
+                break;
+        }
+
+        //Compruebo si es un muro antes de moverme
+        if (m_BoardData[m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y].canPass)
+        {
+            player.transform.position = CellToWorld(m_playerCurrentPositionInCells);
+        }
+        else
+        {
+            m_playerCurrentPositionInCells = startedPosition;
+        }
+    }
+
+
+    /*public CellData GetCellData(Vector2Int cellIndex)
+    {
+        if (!m_BoardData[cellIndex.x, cellIndex.y].canPass) { return null; }
+
+        return m_BoardData[cellIndex.x, cellIndex.y];
+    }*/
+
+
+
+
 }
