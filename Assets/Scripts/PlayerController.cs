@@ -45,7 +45,10 @@ public class PlayerController : MonoBehaviour
         if (context.performed)
         {
             Move(Directions.Up);
-            /*newCellTarget.y += 1;
+
+
+            /*SetNewCellTarget();
+            newCellTarget.y += 1;
             Move();*/
         }
     }
@@ -55,7 +58,10 @@ public class PlayerController : MonoBehaviour
         if (context.performed)
         {
             Move(Directions.Down);
-            /*newCellTarget.y -= 1;
+
+
+            /*SetNewCellTarget();
+            newCellTarget.y -= 1;
             Move();*/
         }
     }
@@ -65,7 +71,10 @@ public class PlayerController : MonoBehaviour
         if (context.performed)
         {
             Move(Directions.Left);
-            /*newCellTarget.x -= 1;
+
+
+            /*SetNewCellTarget();
+            newCellTarget.x -= 1;
             Move();*/
         }
     }
@@ -75,7 +84,10 @@ public class PlayerController : MonoBehaviour
         if (context.performed)
         {
             Move(Directions.Right);
-            /*newCellTarget.x += 1;
+
+
+            /*SetNewCellTarget();
+            newCellTarget.x += 1;
             Move();*/
         }
     }
@@ -90,17 +102,30 @@ public class PlayerController : MonoBehaviour
         transform.position = generateMap.CellToWorld(cell);
     }
 
-    /*void Move()
+    public void SetNewCellTarget()
     {
-        if (m_Generate.GetCellData(newCellTarget) == null) { return; }
+        newCellTarget = m_CellPosition;
+    }
 
-        transform.position = m_Generate.CellToWorld(newCellTarget);
-    }*/
-
+    //Es la forma que yo había pensado
     void Move(Directions direction)
     {
         m_Generate.MovePlayer(direction);
     }
+
+    //Es la forma del profesor
+    void Move()
+    {
+        GenerateMap.CellData cellData = m_Generate.GetCellData(newCellTarget);
+
+        if (cellData != null && cellData.canPass)
+        {
+            m_CellPosition = newCellTarget;
+            transform.position = m_Generate.CellToWorld(m_CellPosition);
+        }
+    }
+
+    
 
 
 }

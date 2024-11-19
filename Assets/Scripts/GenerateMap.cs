@@ -11,6 +11,7 @@ public enum Directions
 
 public class GenerateMap : MonoBehaviour
 {
+    
     //PUBLIC
     public int ancho;
     public int altura;
@@ -18,6 +19,7 @@ public class GenerateMap : MonoBehaviour
     public Tile[] paredes;
     public GameObject player;
     public Vector2Int posInicialPlayer;
+    public int velocidadPlayerTiles = 1;
 
     //PRIVATE
     private Tilemap m_Mapa;
@@ -31,28 +33,25 @@ public class GenerateMap : MonoBehaviour
         public bool canPass;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
+    {
+        GameManager.Instance.SetMapGenerator = this;
+    }
+
+    private void Start()
+    {
+    }
+
+    public void MapGenerator()
     {
 
         ancho = Mathf.RoundToInt(ancho);
         altura = Mathf.RoundToInt(altura);
-        m_Mapa = GetComponentInChildren<Tilemap>();
-        m_Grid = GetComponent<Grid>();    
+        m_Grid = GetComponent<Grid>();
 
+        m_Mapa = GetComponentInChildren<Tilemap>();
         m_BoardData = new CellData[ancho, altura];
 
-        MapGenerator();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    void MapGenerator()
-    {
         //Lógica para generar un mapa
         for (int i = 0; i < ancho; i++)
         {
@@ -79,8 +78,13 @@ public class GenerateMap : MonoBehaviour
         }
 
         //encuentro un punto en el mapa para el inicio del player
-        player.GetComponent<PlayerController>().Spawn(this, new Vector2Int(posInicialPlayer.x, posInicialPlayer.y));
+        
         m_playerCurrentPositionInCells = new Vector2Int(posInicialPlayer.x, posInicialPlayer.y);
+    }
+
+    public void SpawnPlayer()
+    {
+        player.GetComponent<PlayerController>().Spawn(this, new Vector2Int(posInicialPlayer.x, posInicialPlayer.y));
     }
 
     public Vector3 CellToWorld (Vector2Int cellIndex)
@@ -88,6 +92,8 @@ public class GenerateMap : MonoBehaviour
         return m_Grid.GetCellCenterWorld((Vector3Int)cellIndex);
     }
 
+
+    //Mover player a mi forma
     public void MovePlayer(Directions direction)
     {
 
@@ -96,23 +102,24 @@ public class GenerateMap : MonoBehaviour
         switch (direction)
         {
             case Directions.Up:
-                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y + 1);
+                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y + velocidadPlayerTiles);
                 break;
             case Directions.Down:
-                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y - 1);
+                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y - velocidadPlayerTiles);
                 break;
             case Directions.Left:
-                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x - 1, m_playerCurrentPositionInCells.y);
+                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x - velocidadPlayerTiles, m_playerCurrentPositionInCells.y);
                 break;
             case Directions.Right:
-                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x + 1, m_playerCurrentPositionInCells.y);
+                m_playerCurrentPositionInCells = new Vector2Int(m_playerCurrentPositionInCells.x + velocidadPlayerTiles, m_playerCurrentPositionInCells.y);
                 break;
             default:
                 break;
         }
 
         //Compruebo si es un muro antes de moverme
-        if (m_BoardData[m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y].canPass)
+        if (m_BoardData[m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y].canPass 
+            && m_BoardData[m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y] != null) //si la velocidad es mayor a dos salta un indexoutofrange, hay que controlarlo.
         {
             player.transform.position = CellToWorld(m_playerCurrentPositionInCells);
         }
@@ -123,12 +130,12 @@ public class GenerateMap : MonoBehaviour
     }
 
 
-    /*public CellData GetCellData(Vector2Int cellIndex)
+    public CellData GetCellData(Vector2Int cellIndex)
     {
         if (!m_BoardData[cellIndex.x, cellIndex.y].canPass) { return null; }
 
         return m_BoardData[cellIndex.x, cellIndex.y];
-    }*/
+    }
 
 
 
