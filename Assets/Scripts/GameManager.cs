@@ -5,24 +5,21 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
 
-    public static GameManager Instance;
+    public static GameManager Instance {  get; private set; }
 
-    private GenerateMap m_mapGenerator;
-    private TurnManager m_turnManager;
+    public GenerateMap m_mapGenerator { get;  set; }
+    public  TurnManager m_turnManager { get; private set; }
 
-    public GenerateMap SetMapGenerator { set { m_mapGenerator = value; } }
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (Instance != null)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
     }
 
     // Start is called before the first frame update

@@ -35,7 +35,7 @@ public class GenerateMap : MonoBehaviour
 
     private void Awake()
     {
-        GameManager.Instance.SetMapGenerator = this;
+        GameManager.Instance.m_mapGenerator = this;
     }
 
     private void Start()
