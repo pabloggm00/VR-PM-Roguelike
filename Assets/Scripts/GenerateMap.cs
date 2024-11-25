@@ -20,6 +20,8 @@ public class GenerateMap : MonoBehaviour
     public GameObject player;
     public Vector2Int posInicialPlayer;
     public int velocidadPlayerTiles = 1;
+    public GameObject foodPrefab;
+    public int numComidaASpawnear;
 
     //PRIVATE
     private Tilemap m_Mapa;
@@ -27,15 +29,17 @@ public class GenerateMap : MonoBehaviour
     private Vector3 m_playerPositionInCells;
     private Vector2Int m_playerCurrentPositionInCells;
     private Grid m_Grid;
+    private int numComidaASpawnearCount;
 
     public class CellData
     {
         public bool canPass;
+        public GameObject containedObject;
     }
 
     private void Awake()
     {
-        GameManager.Instance.m_mapGenerator = this;
+        GameManager.Instance.mapGenerator = this;
     }
 
     private void Start()
@@ -80,6 +84,9 @@ public class GenerateMap : MonoBehaviour
         //encuentro un punto en el mapa para el inicio del player
         
         m_playerCurrentPositionInCells = new Vector2Int(posInicialPlayer.x, posInicialPlayer.y);
+
+        //comida
+        SpawnComida();
     }
 
     public void SpawnPlayer()
@@ -122,6 +129,7 @@ public class GenerateMap : MonoBehaviour
             && m_BoardData[m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y] != null) //si la velocidad es mayor a dos salta un indexoutofrange, hay que controlarlo.
         {
             player.transform.position = CellToWorld(m_playerCurrentPositionInCells);
+            GameManager.Instance.turnManager.NextTurn();
         }
         else
         {
@@ -132,11 +140,33 @@ public class GenerateMap : MonoBehaviour
 
     public CellData GetCellData(Vector2Int cellIndex)
     {
-        if (!m_BoardData[cellIndex.x, cellIndex.y].canPass) { return null; }
+        if (!m_BoardData[cellIndex.x, cellIndex.y].canPass || m_BoardData[cellIndex.x, cellIndex.y].containedObject != null) { return null; }
 
         return m_BoardData[cellIndex.x, cellIndex.y];
     }
 
+    //cuantos objetos a spawnear, que por cada uno vaya buscando el escenario
+    //y que lo spawnee en una casilla aleatoria, si esa casilla está vacía
+    void SpawnComida()
+    {
+
+        CellData cell = null;
+
+        for (int i = 0; i < numComidaASpawnear; i++)
+        {
+            Vector2Int casilla = new Vector2Int(Random.Range(0, ancho), Random.Range(0, altura));
+            cell = GetCellData(casilla);
+
+            if (cell != null) {
+
+                cell.containedObject = Instantiate(foodPrefab, CellToWorld(casilla), Quaternion.identity);
+            }
+            else
+            {
+                i--;
+            }
+        } 
+    }
 
 
 

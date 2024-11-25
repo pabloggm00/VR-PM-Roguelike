@@ -1,15 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
 
     public static GameManager Instance {  get; private set; }
 
-    public GenerateMap m_mapGenerator { get;  set; }
-    public  TurnManager m_turnManager { get; private set; }
+    public int m_comida = 100;
 
+    public GenerateMap mapGenerator { get;  set; }
+    public  TurnManager turnManager { get; private set; }
+
+    public UIDocument UIDoc;
+    private Label m_FoodLabel;
 
     private void Awake()
     {
@@ -37,15 +42,35 @@ public class GameManager : MonoBehaviour
     void InicializarPartida()
     {
         //Iniciar Turn manager
-        m_turnManager = new TurnManager();
+        turnManager = new TurnManager();
+        turnManager.OnTick += RestarComida;
 
-        if (m_mapGenerator == null)
+        if (mapGenerator == null)
             return;
 
         //Decirle al boardmanager que genere el terreno
-        m_mapGenerator.MapGenerator();
+        mapGenerator.MapGenerator();
 
         //Spawnea el jugador
-        m_mapGenerator.SpawnPlayer();
+        mapGenerator.SpawnPlayer();
+
+        m_FoodLabel = UIDoc.rootVisualElement.Q<Label>("FoodLabel");
+    }
+
+    public void RestarComida() { 
+        
+        if(m_comida <= 0){
+            m_comida = 0;
+            Death();
+            return;
+        }
+        
+        m_comida--;
+        m_FoodLabel.text = "Comida: " + m_comida;
+    }
+
+    void Death()
+    {
+        Debug.Log("Ha muerto");
     }
 }

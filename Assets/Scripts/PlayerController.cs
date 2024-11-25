@@ -40,6 +40,8 @@ public class PlayerController : MonoBehaviour
         InputManager.playerControls.Player.MoveRight.canceled -= GetInputMoveRight;
     }
 
+
+    #region Inputs
     void GetInputMoveUp(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -92,6 +94,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    #endregion
+
     public void Spawn(GenerateMap generateMap, Vector2Int cell)
     {
         m_Generate = generateMap;
@@ -111,6 +115,7 @@ public class PlayerController : MonoBehaviour
     void Move(Directions direction)
     {
         m_Generate.MovePlayer(direction);
+        
     }
 
     //Es la forma del profesor
