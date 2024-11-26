@@ -555,6 +555,10 @@ MonoBehaviour:
   velocidadPlayerTiles: 1
   foodPrefab: {fileID: 3896544616193917941, guid: cd7f42d7c2a98bd4b966296cd3c92f5f, type: 3}
   numComidaASpawnear: 5
+  enemiesPrefab:
+  - {fileID: 5992350341449366798, guid: 5d269ba66b50dd043bf60c0c79ca4bf8, type: 3}
+  - {fileID: 1665339373413828356, guid: 9ad82d97bb834934fa7ea06a76040c45, type: 3}
+  maxEnemies: 3
 --- !u!1 &1363651974
 GameObject:
   m_ObjectHideFlags: 0

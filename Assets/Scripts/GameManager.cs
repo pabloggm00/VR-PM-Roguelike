@@ -59,14 +59,37 @@ public class GameManager : MonoBehaviour
 
     public void RestarComida() { 
         
+        m_comida--;
+        m_FoodLabel.text = "Comida: " + m_comida;
+
         if(m_comida <= 0){
             m_comida = 0;
             Death();
             return;
         }
-        
-        m_comida--;
+    }
+
+    public void RestarComida(int dmg)
+    {
+        m_comida-=dmg;
         m_FoodLabel.text = "Comida: " + m_comida;
+
+        if (m_comida <= 0)
+        {
+            m_comida = 0;
+            Death();
+            return;
+        }
+
+    }
+
+    public void AddComida(int puntosComida)
+    {
+        m_comida+= puntosComida;
+
+        if (m_comida >= 100)
+            m_comida = 101;
+        
     }
 
     void Death()

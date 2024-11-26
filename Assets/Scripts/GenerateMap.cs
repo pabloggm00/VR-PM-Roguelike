@@ -22,19 +22,24 @@ public class GenerateMap : MonoBehaviour
     public int velocidadPlayerTiles = 1;
     public GameObject foodPrefab;
     public int numComidaASpawnear;
+    public List<GameObject> enemiesPrefab;
+    public int maxEnemies;
+    
 
     //PRIVATE
     private Tilemap m_Mapa;
     private CellData[,] m_BoardData;
-    private Vector3 m_playerPositionInCells;
     private Vector2Int m_playerCurrentPositionInCells;
     private Grid m_Grid;
-    private int numComidaASpawnearCount;
+    private List<Vector2Int> m_EmptyCells;
+    private List<GameObject> m_EnemiesInGame;
+
+  
 
     public class CellData
     {
         public bool canPass;
-        public GameObject containedObject;
+        public CellObject containedObject;
     }
 
     private void Awake()
@@ -49,6 +54,7 @@ public class GenerateMap : MonoBehaviour
     public void MapGenerator()
     {
 
+        m_EmptyCells = new List<Vector2Int>();
         ancho = Mathf.RoundToInt(ancho);
         altura = Mathf.RoundToInt(altura);
         m_Grid = GetComponent<Grid>();
@@ -74,6 +80,7 @@ public class GenerateMap : MonoBehaviour
                 {
                     tile = suelos[Random.Range(0, suelos.Length)];
                     m_BoardData[i, j].canPass = true;
+                    m_EmptyCells.Add(new Vector2Int(i,j));
                 }
 
                 m_Mapa.SetTile(new Vector3Int(i, j, 0), tile);
@@ -84,9 +91,10 @@ public class GenerateMap : MonoBehaviour
         //encuentro un punto en el mapa para el inicio del player
         
         m_playerCurrentPositionInCells = new Vector2Int(posInicialPlayer.x, posInicialPlayer.y);
-
+        m_EmptyCells.Remove(m_playerCurrentPositionInCells);
         //comida
         SpawnComida();
+        SpawnEnemies();
     }
 
     public void SpawnPlayer()
@@ -129,18 +137,33 @@ public class GenerateMap : MonoBehaviour
             && m_BoardData[m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y] != null) //si la velocidad es mayor a dos salta un indexoutofrange, hay que controlarlo.
         {
             player.transform.position = CellToWorld(m_playerCurrentPositionInCells);
+
+            if (GetCellData(m_playerCurrentPositionInCells).containedObject != null)
+            {
+                CheckObject();
+            }
+
             GameManager.Instance.turnManager.NextTurn();
         }
         else
         {
             m_playerCurrentPositionInCells = startedPosition;
         }
+
+        MoveAllEnemies();
     }
 
+    void CheckObject()
+    {
+        if (GetCellData(m_playerCurrentPositionInCells).containedObject.TryGetComponent(out CellObject cellObject))
+        {
+            cellObject.PlayerEntered();
+        }
+    }
 
     public CellData GetCellData(Vector2Int cellIndex)
     {
-        if (!m_BoardData[cellIndex.x, cellIndex.y].canPass || m_BoardData[cellIndex.x, cellIndex.y].containedObject != null) { return null; }
+        if (!m_BoardData[cellIndex.x, cellIndex.y].canPass) { return null; }
 
         return m_BoardData[cellIndex.x, cellIndex.y];
     }
@@ -154,20 +177,91 @@ public class GenerateMap : MonoBehaviour
 
         for (int i = 0; i < numComidaASpawnear; i++)
         {
-            Vector2Int casilla = new Vector2Int(Random.Range(0, ancho), Random.Range(0, altura));
+            int rndEmptyCasilla = Random.Range(0, m_EmptyCells.Count);
+            Vector2Int casilla = m_EmptyCells[rndEmptyCasilla];
             cell = GetCellData(casilla);
 
-            if (cell != null) {
+            GameObject cellObject = Instantiate(foodPrefab, CellToWorld(casilla), Quaternion.identity);
+            cell.containedObject = cellObject.GetComponent<CellObject>();
+            m_EmptyCells.RemoveAt(rndEmptyCasilla);
+            
 
-                cell.containedObject = Instantiate(foodPrefab, CellToWorld(casilla), Quaternion.identity);
-            }
-            else
-            {
-                i--;
-            }
         } 
     }
 
+    void SpawnEnemies()
+    {
+        m_EnemiesInGame = new List<GameObject>();
+        CellData cell = null;
+
+        int rndEnemyCount = Random.Range(0, maxEnemies);
+
+        for (int i = 0; i < rndEnemyCount; i++)
+        {
+            int rndEmptyCasilla = Random.Range(0, m_EmptyCells.Count);
+            Vector2Int casilla = m_EmptyCells[rndEmptyCasilla];
+            cell = GetCellData(casilla);
+
+            GameObject cellObject = Instantiate(enemiesPrefab[Random.Range(0, enemiesPrefab.Count)], CellToWorld(casilla), Quaternion.identity);
+            cell.containedObject = cellObject.GetComponent<CellObject>();
+
+            cell.containedObject.posicion = casilla;
+
+            m_EnemiesInGame.Add(cellObject); //para saber cuántos enemigos tengo in game y poder controlarlos
+            m_EmptyCells.RemoveAt(rndEmptyCasilla);
+
+
+        }
+    }
+
+    void MoveAllEnemies()
+    {
+        foreach (GameObject enemy in m_EnemiesInGame)
+        {
+            EnemyObject enemyObject = enemy.GetComponent<EnemyObject>();
+            enemy.transform.position = CellToWorld(CheckDirectionEnemy(enemyObject.posicion));
+        }
+    }
+
+    Vector2Int CheckDirectionEnemy(Vector2Int currentEnemyPos)
+    {
+        Vector2Int direction = new Vector2Int(1,0);
+
+
+        while (!m_BoardData[direction.x, direction.y].canPass)
+        {
+            int rndDirection = Random.Range(1, 5);
+
+            switch (rndDirection)
+            {
+                case 1:
+                    //arriba
+                    direction = new Vector2Int(currentEnemyPos.x, currentEnemyPos.y + 1);
+                    break;
+                case 2:
+                    //abajo
+                    direction = new Vector2Int(currentEnemyPos.x, currentEnemyPos.y - 1);
+                    break;
+                case 3:
+                    //derecha
+                    direction = new Vector2Int(currentEnemyPos.x + 1, currentEnemyPos.y);
+                    break;
+                case 4:
+                    //izquierda
+                    direction = new Vector2Int(currentEnemyPos.x - 1, currentEnemyPos.y);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        /*if (m_BoardData[direction.x, direction.y].canPass)
+        {
+            return direction;
+        }*/
+
+        return currentEnemyPos;
+    }
 
 
 }

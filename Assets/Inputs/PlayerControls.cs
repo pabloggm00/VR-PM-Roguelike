@@ -133,6 +133,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""33d95944-bdaf-41b5-bdf1-491f7e33a2bc"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""6cd77e4b-4ec4-4e51-82da-f96ed82ba32f"",
                     ""path"": ""<Keyboard>/s"",
                     ""interactions"": """",
