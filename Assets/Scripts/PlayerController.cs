@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     private GenerateMap m_Generate;
     private Vector2Int m_CellPosition;
     private Vector2Int newCellTarget;
+    private Animator m_Anim;
 
     private void OnEnable()
     {
@@ -23,6 +24,9 @@ public class PlayerController : MonoBehaviour
 
         InputManager.playerControls.Player.MoveRight.performed += GetInputMoveRight;
         InputManager.playerControls.Player.MoveRight.canceled += GetInputMoveRight;
+
+        WallObject.OnPlayerPicar += PicarAnimation;
+        EnemyObject.OnHerir += HerirAnimation;
     }
 
     private void OnDisable()
@@ -38,6 +42,14 @@ public class PlayerController : MonoBehaviour
 
         InputManager.playerControls.Player.MoveRight.performed -= GetInputMoveRight;
         InputManager.playerControls.Player.MoveRight.canceled -= GetInputMoveRight;
+
+        WallObject.OnPlayerPicar -= PicarAnimation;
+        EnemyObject.OnHerir -= HerirAnimation;
+    }
+
+    private void Start()
+    {
+        m_Anim = GetComponentInChildren<Animator>();
     }
 
 
@@ -130,7 +142,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    
 
+    void PicarAnimation()
+    {
+        //Aqui se aplica el animar
+        m_Anim.SetTrigger("Picar");
+    }
 
+    void HerirAnimation()
+    {
+        m_Anim.SetTrigger("Hurt");
+    }
 }

@@ -9,12 +9,14 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance {  get; private set; }
 
     public int m_comida = 100;
+    private int m_Round = 1;
 
     public GenerateMap mapGenerator { get;  set; }
     public  TurnManager turnManager { get; private set; }
 
     public UIDocument UIDoc;
     private Label m_FoodLabel;
+    private Label m_RoundLabel;
 
     private void Awake()
     {
@@ -55,6 +57,11 @@ public class GameManager : MonoBehaviour
         mapGenerator.SpawnPlayer();
 
         m_FoodLabel = UIDoc.rootVisualElement.Q<Label>("FoodLabel");
+        m_FoodLabel.text = "Comida: " + m_comida;
+
+        m_RoundLabel = UIDoc.rootVisualElement.Q<Label>("RoundLabel");
+
+        m_RoundLabel.text = "Ronda: " + m_Round;
     }
 
     public void RestarComida() { 
@@ -95,5 +102,18 @@ public class GameManager : MonoBehaviour
     void Death()
     {
         Debug.Log("Ha muerto");
+    }
+
+    void SubirRonda()
+    {
+        m_Round++;
+        m_RoundLabel.text = "Ronda: " + m_Round;
+    }
+
+    public void DestroyWorld()
+    {
+       mapGenerator.DestroyWorld();
+       InicializarPartida();
+       SubirRonda();
     }
 }

@@ -7,14 +7,27 @@ public class EnemyObject : CellObject
 
     public int damage;
 
+    private Animator m_Anim;
+
+    public static event System.Action<GameObject> OnMorir;
+
+    public static event System.Action OnHerir;
+
+
+    private void Start()
+    {
+        m_Anim = GetComponent<Animator>();
+    }
+
     public override void PlayerEntered()
     {
-        Destroy(gameObject);
+        m_Anim.SetTrigger("Attack");
+        OnHerir?.Invoke();
         GameManager.Instance.RestarComida(damage);
+        Destroy(this.gameObject);
+        OnMorir?.Invoke(this.gameObject);
     }
 
-    public void MoveEnemy()
-    {
 
-    }
+
 }
