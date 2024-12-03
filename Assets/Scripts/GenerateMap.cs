@@ -171,13 +171,14 @@ public class GenerateMap : MonoBehaviour
                 if (m_BoardData[m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y].containedObject.TryGetComponent(out WallObject wallObject))
                 {
                     wallObject.PlayerWantsToEnter();
+                    
                 }
             }
 
             m_playerCurrentPositionInCells = startedPosition;
         }
 
-       
+        CheckObject();
 
     }
 
@@ -250,7 +251,7 @@ public class GenerateMap : MonoBehaviour
             WallObject wallObject = cell.containedObject.GetComponent<WallObject>();
 
             wallObject.posicion = casilla;
-            wallObject.hP = Random.Range(1, 4);
+            wallObject.hP = Random.Range(2, 4);
 
             m_EmptyCells.RemoveAt(rndEmptyCasilla);
 
@@ -263,7 +264,7 @@ public class GenerateMap : MonoBehaviour
         m_EnemiesInGame = new List<GameObject>();
         CellData cell = null;
 
-        int rndEnemyCount = Random.Range(1, maxEnemies);
+        int rndEnemyCount = Random.Range(1, maxEnemies+1);
 
         for (int i = 0; i < rndEnemyCount; i++)
         {
@@ -302,9 +303,8 @@ public class GenerateMap : MonoBehaviour
 
             cell = GetCellData(enemyObject.posicion);
             cell.containedObject = enemy;
-
-            
         }
+
     }
 
     Vector2Int CheckDirectionEnemy(Vector2Int currentEnemyPos)
@@ -362,11 +362,24 @@ public class GenerateMap : MonoBehaviour
         {
             if (cell != null && cell.containedObject != null)
             {
-               
                 Destroy(cell.containedObject);
                 cell.containedObject = null;
                 
             }
         }
+
+        Debug.Log(m_BoardData.Length);
+
+        //Lógica para generar un mapa
+        for (int i = 0; i < ancho; i++)
+        {
+            for (int j = 0; j < altura; j++)
+            {
+                m_Mapa.SetTile(new Vector3Int(i, j, 0), null);
+
+            }
+        }
+
+
     }
 }

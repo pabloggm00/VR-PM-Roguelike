@@ -85,7 +85,7 @@ public class PlayerController : MonoBehaviour
         if (context.performed)
         {
             Move(Directions.Left);
-
+            GetComponentInChildren<SpriteRenderer>().flipX = true;
 
             /*SetNewCellTarget();
             newCellTarget.x -= 1;
@@ -98,7 +98,7 @@ public class PlayerController : MonoBehaviour
         if (context.performed)
         {
             Move(Directions.Right);
-
+            GetComponentInChildren<SpriteRenderer>().flipX = false;
 
             /*SetNewCellTarget();
             newCellTarget.x += 1;
@@ -145,7 +145,6 @@ public class PlayerController : MonoBehaviour
 
     void PicarAnimation()
     {
-        //Aqui se aplica el animar
         m_Anim.SetTrigger("Picar");
     }
 
