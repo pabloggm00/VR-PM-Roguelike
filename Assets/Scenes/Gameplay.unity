@@ -557,7 +557,7 @@ MonoBehaviour:
   wallPrefab: {fileID: 3480704449873359663, guid: 55767aba7c3bdf444b919a703bbb1e0a, type: 3}
   exitPrefab: {fileID: 7394116076195974732, guid: 3a1131c1a16e8ce448a45de8753d3357, type: 3}
   numComidaASpawnear: 5
-  numWallASpawnear: 3
+  numWallASpawnear: 5
   enemiesPrefab:
   - {fileID: 5992350341449366798, guid: 5d269ba66b50dd043bf60c0c79ca4bf8, type: 3}
   - {fileID: 1665339373413828356, guid: 9ad82d97bb834934fa7ea06a76040c45, type: 3}
