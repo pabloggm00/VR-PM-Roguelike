@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,21 +6,41 @@ using UnityEngine;
 public class WallObject : CellObject
 {
 
-    public int hP=2;
-    public Sprite spriteDaniado;
-    public static event System.Action<WallObject> OnDestroyWall;
+    public int hP=200;
+    public int costeComida = 3;
+    public List<Wall> muros;
+    public SpriteRenderer spriteRenderer;
+    Sprite spriteNormal;
+    Sprite spriteDaniado;
+    public static event Action<WallObject> OnDestroyWall;
 
-    public static event System.Action OnPlayerPicar;
+    public static event Action OnPlayerPicar;
 
-    public void PlayerWantsToEnter()
+    private void Start()
+    {
+        GenerateSprite();
+    }
+
+    void GenerateSprite()
+    {
+        int rnd = UnityEngine.Random.Range(0, muros.Count);
+
+        spriteNormal = muros[rnd].spriteNormal;
+        spriteDaniado = muros[rnd].spriteDaniado;
+
+        spriteRenderer.sprite = spriteNormal;
+    }
+
+    public override bool PlayerWantsToEnter()
     {
         hP--;
-        GameManager.Instance.RestarComida();
+        GameManager.Instance.RestarComida(costeComida);
         OnPlayerPicar?.Invoke();
+
 
         if (hP % 2 == 0 || hP <= 1)
         {
-            GetComponent<SpriteRenderer>().sprite = spriteDaniado;
+            spriteRenderer.sprite = spriteDaniado;
 
         }
 
@@ -27,7 +48,10 @@ public class WallObject : CellObject
         {
             OnDestroyWall?.Invoke(this);
             Destroy(gameObject);
+            return true;
         }
+
+        return false;
 
     }
 }

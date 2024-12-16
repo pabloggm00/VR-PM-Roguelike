@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -20,12 +21,21 @@ public class GenerateMap : MonoBehaviour
     public GameObject player;
     public Vector2Int posInicialPlayer;
     public int velocidadPlayerTiles = 1;
-    public GameObject foodPrefab;
-    public GameObject wallPrefab;
-    public GameObject exitPrefab;
-    public int numComidaASpawnear;
-    public int numWallASpawnear;
+    public Exit exitPrefab;
+
+    [Header("Comida")]
+    public FoodObject foodPrefab;
+    public int numMaxComidaASpawnear;
+    public int numMinComidaASpawnear;
+
+    [Header("Muros")]
+    public WallObject wallPrefab;
+    public int numMaxWallASpawnear;
+    public int numMinWallASpawnear;
+
+    [Header("Enemigos")]
     public List<GameObject> enemiesPrefab;
+    public int minEnemies;
     public int maxEnemies;
 
     
@@ -36,13 +46,14 @@ public class GenerateMap : MonoBehaviour
     private Vector2Int m_playerCurrentPositionInCells;
     private Grid m_Grid;
     private List<Vector2Int> m_EmptyCells;
-    private List<GameObject> m_EnemiesInGame;
+    private List<EnemyObject> m_EnemiesInGame;
 
 
     private void OnEnable()
     {
         EnemyObject.OnMorir += DestroyEnemyInGame;
         WallObject.OnDestroyWall += DestroyWall;
+        
     }
 
     private void OnDisable()
@@ -50,12 +61,13 @@ public class GenerateMap : MonoBehaviour
 
         EnemyObject.OnMorir -= DestroyEnemyInGame;
         WallObject.OnDestroyWall -= DestroyWall;
+    
     }
 
     public class CellData
     {
         public bool canPass;
-        public GameObject containedObject;
+        public CellObject containedObject;
     }
 
     private void Awake()
@@ -89,12 +101,12 @@ public class GenerateMap : MonoBehaviour
 
                 if (j == 0 || j == altura-1 || i == 0 || i == ancho-1)
                 {
-                    tile = paredes[Random.Range(0, paredes.Length)];
+                    tile = paredes[UnityEngine.Random.Range(0, paredes.Length)];
                     m_BoardData[i,j].canPass = false;
                 }
                 else
                 {
-                    tile = suelos[Random.Range(0, suelos.Length)];
+                    tile = suelos[UnityEngine.Random.Range(0, suelos.Length)];
                     m_BoardData[i, j].canPass = true;
                     m_EmptyCells.Add(new Vector2Int(i,j));
                 }
@@ -128,7 +140,7 @@ public class GenerateMap : MonoBehaviour
 
 
     //Mover player a mi forma
-    public void MovePlayer(Directions direction)
+    /*public void MovePlayer(Directions direction)
     {
 
         Vector2Int startedPosition = m_playerCurrentPositionInCells;
@@ -151,28 +163,34 @@ public class GenerateMap : MonoBehaviour
                 break;
         }
 
-        MoveAllEnemies();
+        
 
         //Compruebo si es un muro antes de moverme
         if (m_BoardData[m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y].canPass) //si la velocidad es mayor a dos salta un indexoutofrange, hay que controlarlo.
         {
-            player.transform.position = CellToWorld(m_playerCurrentPositionInCells);
+            //player.transform.position = CellToWorld(m_playerCurrentPositionInCells);
+            OnPlayerMove?.Invoke(CellToWorld(m_playerCurrentPositionInCells));
  
-            CheckObject();
+            MoveAllEnemies();
+            //CheckObject();
 
             GameManager.Instance.turnManager.NextTurn();
         }
         else
         {
-
+            
             //comprobamos si es un obstáculo
             if (m_BoardData[m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y].containedObject != null)
             {
                 if (m_BoardData[m_playerCurrentPositionInCells.x, m_playerCurrentPositionInCells.y].containedObject.TryGetComponent(out WallObject wallObject))
                 {
                     wallObject.PlayerWantsToEnter();
-                    
+                   
                 }
+
+                GameManager.Instance.turnManager.NextTurn();
+                MoveAllEnemies();
+                //CheckObject();
             }
 
             m_playerCurrentPositionInCells = startedPosition;
@@ -180,7 +198,7 @@ public class GenerateMap : MonoBehaviour
 
         CheckObject();
 
-    }
+    }*/
 
     void CheckObject()
     {
@@ -197,6 +215,10 @@ public class GenerateMap : MonoBehaviour
 
     public CellData GetCellData(Vector2Int cellIndex)
     {
+        if (cellIndex.x < 0 || cellIndex.x >= ancho || cellIndex.y < 0 || cellIndex.y >= altura)
+        {
+            return null;
+        }
         return m_BoardData[cellIndex.x, cellIndex.y];
     }
 
@@ -207,15 +229,17 @@ public class GenerateMap : MonoBehaviour
 
         CellData cell = null;
 
-        for (int i = 0; i < numComidaASpawnear; i++)
-        {
-            int rndEmptyCasilla = Random.Range(0, m_EmptyCells.Count);
-            Vector2Int casilla = m_EmptyCells[rndEmptyCasilla];
-            cell = GetCellData(casilla);
+        int rndNumComida = UnityEngine.Random.Range(numMinComidaASpawnear, numMaxComidaASpawnear + 1); //obtengo un numero aleatorio de comida
 
-            GameObject cellObject = Instantiate(foodPrefab, CellToWorld(casilla), Quaternion.identity);
-            cell.containedObject = cellObject;
-            m_EmptyCells.RemoveAt(rndEmptyCasilla);
+        for (int i = 0; i < rndNumComida; i++)
+        {
+            int rndEmptyCasilla = UnityEngine.Random.Range(0, m_EmptyCells.Count); //obtengo un indice aleatorio
+            Vector2Int casilla = m_EmptyCells[rndEmptyCasilla]; //obtengo la posición de la casilla con el index generado aleatoriamente
+            cell = GetCellData(casilla); //recojo esa casilla en una variable
+
+            FoodObject cellObject = Instantiate(foodPrefab, CellToWorld(casilla), Quaternion.identity); //instancio la comida
+            cell.containedObject = cellObject; //relleno ese hueco
+            m_EmptyCells.RemoveAt(rndEmptyCasilla); //elimino el hueco libre que ahora está ocupado
             
 
         } 
@@ -225,11 +249,11 @@ public class GenerateMap : MonoBehaviour
     {
 
         Vector2Int exit = new Vector2Int(ancho - 2, altura - 2);
-        m_EmptyCells.Remove(exit);
+        m_EmptyCells.Remove(exit); //elimino la casilla libre
 
-        GameObject cellObject = Instantiate(exitPrefab, CellToWorld(exit), Quaternion.identity);
+        Exit cellObject = Instantiate(exitPrefab, CellToWorld(exit), Quaternion.identity); //instancio la salida
 
-        GetCellData(exit).containedObject = cellObject;
+        GetCellData(exit).containedObject = cellObject; //relleno la información de la casilla
 
     } 
 
@@ -238,22 +262,21 @@ public class GenerateMap : MonoBehaviour
 
         CellData cell = null;
 
-        for (int i = 0; i < numWallASpawnear; i++)
+        int rndNumWall = UnityEngine.Random.Range(numMinWallASpawnear, numMaxWallASpawnear+1); //obtengo un numero aleatorio de muros
+
+        for (int i = 0; i < rndNumWall; i++)
         {
-            int rndEmptyCasilla = Random.Range(0, m_EmptyCells.Count);
-            Vector2Int casilla = m_EmptyCells[rndEmptyCasilla];
-            cell = GetCellData(casilla);
-            cell.canPass = false;
+            int rndEmptyCasilla = UnityEngine.Random.Range(0, m_EmptyCells.Count); //obtengo un indice aleatorio
+            Vector2Int casilla = m_EmptyCells[rndEmptyCasilla]; //obtengo la posición de la casilla con el index generado aleatoriamente
+            cell = GetCellData(casilla); //recojo esa casilla en una variable
 
-            GameObject cellObject = Instantiate(wallPrefab, CellToWorld(casilla), Quaternion.identity);
-            cell.containedObject = cellObject;
+            WallObject cellObject = Instantiate(wallPrefab, CellToWorld(casilla), Quaternion.identity); //instancio el muro
+            cell.containedObject = cellObject; //relleno ese hueco
 
-            WallObject wallObject = cell.containedObject.GetComponent<WallObject>();
+            cellObject.posicion = casilla; //le digo en qué posición está
+            //wallObject.hP = Random.Range(2, 4);
 
-            wallObject.posicion = casilla;
-            wallObject.hP = Random.Range(2, 4);
-
-            m_EmptyCells.RemoveAt(rndEmptyCasilla);
+            m_EmptyCells.RemoveAt(rndEmptyCasilla); //elimino el hueco libre que ahora está ocupado
 
 
         }
@@ -261,48 +284,51 @@ public class GenerateMap : MonoBehaviour
 
     void SpawnEnemies()
     {
-        m_EnemiesInGame = new List<GameObject>();
+        m_EnemiesInGame = new List<EnemyObject>();
         CellData cell = null;
 
-        int rndEnemyCount = Random.Range(1, maxEnemies+1);
+        int rndEnemyCount = UnityEngine.Random.Range(minEnemies, maxEnemies+1);
 
         for (int i = 0; i < rndEnemyCount; i++)
         {
-            int rndEmptyCasilla = Random.Range(0, m_EmptyCells.Count); //cojo un numero random de las casillas libres
+            int rndEmptyCasilla = UnityEngine.Random.Range(0, m_EmptyCells.Count); //cojo un numero random de las casillas libres
             Vector2Int casilla = m_EmptyCells[rndEmptyCasilla]; //consigo una casilla libre
             cell = GetCellData(casilla); //cojo esos catos 
 
-            GameObject cellObject = Instantiate(enemiesPrefab[Random.Range(0, enemiesPrefab.Count)], CellToWorld(casilla), Quaternion.identity); //instancio un enemigo en dicha celda
-            cell.containedObject = cellObject; //actualizo esa celda y que contiene algo
+            GameObject cellObject = Instantiate(enemiesPrefab[UnityEngine.Random.Range(0, enemiesPrefab.Count)], CellToWorld(casilla), Quaternion.identity); //instancio un enemigo en dicha celda
+            
+            EnemyObject enemy = cellObject.GetComponent<EnemyObject>();
+
+            cell.containedObject = enemy; //actualizo esa celda y que contiene algo
 
             cell.containedObject.GetComponent<CellObject>().posicion = casilla; //guardo la posicion del enemigo
 
-            m_EnemiesInGame.Add(cellObject); //para saber cuántos enemigos tengo in game y poder controlarlos
+            m_EnemiesInGame.Add(enemy); //para saber cuántos enemigos tengo in game y poder controlarlos
             m_EmptyCells.RemoveAt(rndEmptyCasilla); //elimino esa casilla libre
 
 
         }
     }
 
-    void MoveAllEnemies()
+    public void MoveAllEnemies()
     {
 
         CellData cell = null;
 
-        foreach (GameObject enemy in m_EnemiesInGame)
+        foreach (EnemyObject enemy in m_EnemiesInGame)
         {
-            EnemyObject enemyObject = enemy.GetComponent<EnemyObject>();
-            cell = GetCellData(enemyObject.posicion);
+            
+            cell = GetCellData(enemy.posicion); //recojo la posición en la que está
 
-            Vector2Int toMove = CheckDirectionEnemy(enemyObject.posicion);
+            Vector2Int toMove = CheckDirectionEnemy(enemy.posicion); //calculo hacia donde me muevo
 
-            cell.containedObject = null;
+            cell.containedObject = null; //elimino toda información de la posición antigua
 
-            enemy.transform.position = CellToWorld(toMove);
-            enemyObject.posicion = toMove;
+            enemy.transform.position = CellToWorld(toMove); //muevo al enemigo a la nueva posición
+            enemy.posicion = toMove; //guardo esa posición nueva
 
-            cell = GetCellData(enemyObject.posicion);
-            cell.containedObject = enemy;
+            cell = GetCellData(enemy.posicion); //recojo la celda en la que está ahora
+            cell.containedObject = enemy; //relleno la información de la nueva celda
         }
 
     }
@@ -311,7 +337,7 @@ public class GenerateMap : MonoBehaviour
     {
         Vector2Int direction = new Vector2Int(1,1);
 
-        int rndDirection = Random.Range(1, 5);
+        int rndDirection = UnityEngine.Random.Range(1, 5);
 
         switch (rndDirection)
         {
@@ -344,42 +370,36 @@ public class GenerateMap : MonoBehaviour
         return direction;
     }
 
-    public void DestroyEnemyInGame(GameObject enemy)
+    //para cuando mueran los enemigos
+    public void DestroyEnemyInGame(EnemyObject enemy)
     {
         m_EnemiesInGame.Remove(enemy);
     }
 
+
+    //para cuando destruyamos los muros
     public void DestroyWall(WallObject cell)
     {
-        GetCellData(cell.posicion).canPass = true;
         m_EmptyCells.Add(cell.posicion);
+        Destroy(GetCellData(cell.posicion).containedObject.gameObject);
     }
 
-    public void DestroyWorld()
+    public void Clean()
     {
-        // Limpiar la comida
-        foreach (var cell in m_BoardData)
-        {
-            if (cell != null && cell.containedObject != null)
-            {
-                Destroy(cell.containedObject);
-                cell.containedObject = null;
-                
-            }
-        }
+        if (m_BoardData == null) return;
 
-        Debug.Log(m_BoardData.Length);
-
-        //Lógica para generar un mapa
-        for (int i = 0; i < ancho; i++)
+        for (int i = 0; i < ancho; ++i)
         {
-            for (int j = 0; j < altura; j++)
+            for (int j = 0; j < altura; j++) 
             {
+                var cellData = m_BoardData[i, j];
+
+                if (cellData.containedObject != null)
+                {
+                    Destroy(cellData.containedObject.gameObject);
+                }
                 m_Mapa.SetTile(new Vector3Int(i, j, 0), null);
-
             }
         }
-
-
     }
 }

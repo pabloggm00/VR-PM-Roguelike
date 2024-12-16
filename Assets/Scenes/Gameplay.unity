@@ -476,7 +476,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14e2428eda7c7b1498b9e89e2bf86073, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_comida: 100
+  comidaInicial: 100
+  roundInicial: 1
   UIDoc: {fileID: 1879556728}
 --- !u!1 &1096834401
 GameObject:
@@ -549,19 +550,22 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 34500ec09110d8447bbc625b25d99f2d, type: 2}
   paredes:
   - {fileID: 11400000, guid: 7a3e2a51610d0e743b3a5ee9523f3fa0, type: 2}
-  - {fileID: 11400000, guid: 29d0f1c6a1fa3d04bbf4285a64e3399f, type: 2}
+  - {fileID: 11400000, guid: 4573f267dd9173f4c8ea18626a0c5105, type: 2}
   player: {fileID: 7302224392879738285}
   posInicialPlayer: {x: 1, y: 1}
   velocidadPlayerTiles: 1
-  foodPrefab: {fileID: 3896544616193917941, guid: cd7f42d7c2a98bd4b966296cd3c92f5f, type: 3}
-  wallPrefab: {fileID: 3480704449873359663, guid: 55767aba7c3bdf444b919a703bbb1e0a, type: 3}
-  exitPrefab: {fileID: 7394116076195974732, guid: 3a1131c1a16e8ce448a45de8753d3357, type: 3}
-  numComidaASpawnear: 5
-  numWallASpawnear: 5
+  exitPrefab: {fileID: -4095270689819537716, guid: 3a1131c1a16e8ce448a45de8753d3357, type: 3}
+  foodPrefab: {fileID: 8356021085292872342, guid: cd7f42d7c2a98bd4b966296cd3c92f5f, type: 3}
+  numMaxComidaASpawnear: 1
+  numMinComidaASpawnear: 5
+  wallPrefab: {fileID: 2353917733780265741, guid: 55767aba7c3bdf444b919a703bbb1e0a, type: 3}
+  numMaxWallASpawnear: 2
+  numMinWallASpawnear: 5
   enemiesPrefab:
   - {fileID: 5992350341449366798, guid: 5d269ba66b50dd043bf60c0c79ca4bf8, type: 3}
   - {fileID: 1665339373413828356, guid: 9ad82d97bb834934fa7ea06a76040c45, type: 3}
-  maxEnemies: 3
+  minEnemies: 1
+  maxEnemies: 4
 --- !u!1 &1363651974
 GameObject:
   m_ObjectHideFlags: 0
@@ -928,7 +932,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 31
   m_Sprite: {fileID: 21300000, guid: fbe1e7b94bb1a4a099d5bcb15a00141c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1000,6 +1004,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3951e50f7c68ab46b4d966c39b87f26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 10
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -6,6 +6,8 @@ public class Exit : CellObject
 {
     public override void PlayerEntered()
     {
-        GameManager.Instance.DestroyWorld();
+        GameManager.Instance.CompletarRonda();
+
+        
     }
 }

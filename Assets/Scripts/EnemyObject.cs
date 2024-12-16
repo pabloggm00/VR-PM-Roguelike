@@ -9,7 +9,7 @@ public class EnemyObject : CellObject
 
     private Animator m_Anim;
 
-    public static event System.Action<GameObject> OnMorir;
+    public static event System.Action<EnemyObject> OnMorir;
 
     public static event System.Action OnHerir;
 
@@ -25,7 +25,7 @@ public class EnemyObject : CellObject
         OnHerir?.Invoke();
         GameManager.Instance.RestarComida(damage);
         Destroy(this.gameObject);
-        OnMorir?.Invoke(this.gameObject);
+        OnMorir?.Invoke(this);
     }
 
 

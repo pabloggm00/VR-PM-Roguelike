@@ -99,4 +99,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   posicion: {x: 0, y: 0}
   hP: 2
-  spriteDaniado: {fileID: 21300106, guid: fbe1e7b94bb1a4a099d5bcb15a00141c, type: 3}
+  costeComida: 3
+  muros:
+  - {fileID: 11400000, guid: efbf74318a3d7b34eb519395a87204ac, type: 2}
+  - {fileID: 11400000, guid: ea14ebb4f828d7348af004cdd5fcdab8, type: 2}
+  - {fileID: 11400000, guid: 02f3db4e7f053dc459a8e65c6ba6be07, type: 2}
+  spriteRenderer: {fileID: 953112285739131857}

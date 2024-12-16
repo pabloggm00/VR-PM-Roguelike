@@ -97,4 +97,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3916f762e75feb34b8719a55a9ba14df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  posicion: {x: 0, y: 0}
   puntosComida: 5
+  comidas:
+  - {fileID: 11400000, guid: b1e88c257844c53479184364b1c40493, type: 2}
+  - {fileID: 11400000, guid: b81e0dade4713da4b8e03256711a4466, type: 2}
+  spriteRenderer: {fileID: 1528804683819278906}

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,10 +7,17 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
 
-    private GenerateMap m_Generate;
+    public int speed;
+
+    private GenerateMap m_GenerateMap;
+    private Vector3 m_MoveTarget;
     private Vector2Int m_CellPosition;
     private Vector2Int newCellTarget;
     private Animator m_Anim;
+
+    bool m_isMoving;
+    bool hasMoved;
+
 
     private void OnEnable()
     {
@@ -52,18 +60,70 @@ public class PlayerController : MonoBehaviour
         m_Anim = GetComponentInChildren<Animator>();
     }
 
+    private void Update()
+    {
+        
+        if (m_isMoving)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, m_MoveTarget, speed * Time.deltaTime);
+            if (transform.position == m_MoveTarget)
+            {
+                m_isMoving = false;
+                var cellData = m_GenerateMap.GetCellData(m_CellPosition); 
+                if (cellData.containedObject != null) cellData.containedObject.PlayerEntered();
+                ActivarInput();
+            }
+            return;
+        }
+
+        if (hasMoved)
+        {
+            //comprueba si la nueva posición es pasable, y muevela si lo es.
+            GenerateMap.CellData cellData = m_GenerateMap.GetCellData(newCellTarget);
+            
+            if (cellData != null && cellData.canPass)
+            {
+                GameManager.Instance.turnManager.NextTurn();
+
+                if (cellData.containedObject == null)
+                {
+                    MoveTo(newCellTarget, false);
+                }
+                else if (cellData.containedObject.PlayerWantsToEnter())
+                {
+                    MoveTo(newCellTarget, false);
+                    ActivarInput();
+                }
+                else
+                {
+                    ActivarInput();
+                }
+                
+            }else if(!cellData.canPass){
+
+                ActivarInput();
+
+            }
+
+            hasMoved = false;
+
+        }
+
+    }
+
 
     #region Inputs
     void GetInputMoveUp(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            Move(Directions.Up);
+            //Move(Directions.Up);
 
-
-            /*SetNewCellTarget();
+            SetNewCellTarget();
             newCellTarget.y += 1;
-            Move();*/
+            hasMoved = true;
+            DesactivarInput();
+            //Move();
         }
     }
 
@@ -71,12 +131,14 @@ public class PlayerController : MonoBehaviour
     {
         if (context.performed)
         {
-            Move(Directions.Down);
+            //Move(Directions.Down);
 
 
-            /*SetNewCellTarget();
+            SetNewCellTarget();
             newCellTarget.y -= 1;
-            Move();*/
+            hasMoved = true;
+            DesactivarInput();
+            //Move();
         }
     }
 
@@ -84,12 +146,14 @@ public class PlayerController : MonoBehaviour
     {
         if (context.performed)
         {
-            Move(Directions.Left);
+            //Move(Directions.Left);
             GetComponentInChildren<SpriteRenderer>().flipX = true;
 
-            /*SetNewCellTarget();
+            SetNewCellTarget();
             newCellTarget.x -= 1;
-            Move();*/
+            hasMoved = true;
+            DesactivarInput();
+            //Move();
         }
     }
 
@@ -97,12 +161,14 @@ public class PlayerController : MonoBehaviour
     {
         if (context.performed)
         {
-            Move(Directions.Right);
+            //Move(Directions.Right);
             GetComponentInChildren<SpriteRenderer>().flipX = false;
 
-            /*SetNewCellTarget();
+            SetNewCellTarget();
             newCellTarget.x += 1;
-            Move();*/
+            hasMoved = true;
+            DesactivarInput();
+            //Move();
         }
     }
 
@@ -110,12 +176,13 @@ public class PlayerController : MonoBehaviour
 
     public void Spawn(GenerateMap generateMap, Vector2Int cell)
     {
-        m_Generate = generateMap;
+        m_GenerateMap = generateMap;
         m_CellPosition = cell;
 
         newCellTarget = cell;
 
         transform.position = generateMap.CellToWorld(cell);
+        GetComponentInChildren<SpriteRenderer>().flipX = false;
     }
 
     public void SetNewCellTarget()
@@ -123,25 +190,35 @@ public class PlayerController : MonoBehaviour
         newCellTarget = m_CellPosition;
     }
 
-    //Es la forma que yo había pensado
-    void Move(Directions direction)
+    void MoveTo(Vector2Int cell, bool inmediate)//refactoriación del método que sirve para moverse
     {
-        m_Generate.MovePlayer(direction);
-        
-    }
-
-    //Es la forma del profesor
-    void Move()
-    {
-        GenerateMap.CellData cellData = m_Generate.GetCellData(newCellTarget);
-
-        if (cellData != null && cellData.canPass)
+        m_CellPosition = cell;
+        if (inmediate)
         {
-            m_CellPosition = newCellTarget;
-            transform.position = m_Generate.CellToWorld(m_CellPosition);
+            m_isMoving = false;
+            transform.position = m_GenerateMap.CellToWorld(m_CellPosition);
+        }
+        else
+        {
+            m_isMoving = true;
+            m_MoveTarget = m_GenerateMap.CellToWorld(m_CellPosition);
         }
     }
 
+
+    void ActivarInput()
+    {
+        InputManager.playerControls.Player.Enable();
+    }
+
+    void DesactivarInput()
+    {
+        InputManager.playerControls.Player.Disable();
+    }
+
+    
+
+    #region Animaciones
 
     void PicarAnimation()
     {
@@ -152,4 +229,7 @@ public class PlayerController : MonoBehaviour
     {
         m_Anim.SetTrigger("Hurt");
     }
+
+    #endregion
+
 }
