@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
 
     private GenerateMap m_GenerateMap;
     private Vector3 m_MoveTarget;
-    private Vector2Int m_CellPosition;
+    public Vector2Int cellPosition;
     private Vector2Int newCellTarget;
     private Animator m_Anim;
 
@@ -33,8 +33,9 @@ public class PlayerController : MonoBehaviour
         InputManager.playerControls.Player.MoveRight.performed += GetInputMoveRight;
         InputManager.playerControls.Player.MoveRight.canceled += GetInputMoveRight;
 
-        WallObject.OnPlayerPicar += PicarAnimation;
+      
         EnemyObject.OnHerir += HerirAnimation;
+
     }
 
     private void OnDisable()
@@ -51,8 +52,8 @@ public class PlayerController : MonoBehaviour
         InputManager.playerControls.Player.MoveRight.performed -= GetInputMoveRight;
         InputManager.playerControls.Player.MoveRight.canceled -= GetInputMoveRight;
 
-        WallObject.OnPlayerPicar -= PicarAnimation;
         EnemyObject.OnHerir -= HerirAnimation;
+        
     }
 
     private void Start()
@@ -69,9 +70,9 @@ public class PlayerController : MonoBehaviour
             if (transform.position == m_MoveTarget)
             {
                 m_isMoving = false;
-                var cellData = m_GenerateMap.GetCellData(m_CellPosition); 
+                var cellData = m_GenerateMap.GetCellData(cellPosition); 
                 if (cellData.containedObject != null) cellData.containedObject.PlayerEntered();
-                ActivarInput();
+                //ActivarInput();
             }
             return;
         }
@@ -83,25 +84,30 @@ public class PlayerController : MonoBehaviour
             
             if (cellData != null && cellData.canPass)
             {
+
                 GameManager.Instance.turnManager.NextTurn();
 
                 if (cellData.containedObject == null)
                 {
                     MoveTo(newCellTarget, false);
                 }
-                else if (cellData.containedObject.PlayerWantsToEnter())
+                else if (cellData.containedObject.PlayerWantsToEnter()) //compruebo si es enemigo o muro
                 {
+                    //aqui quiero entrar y me muevo
                     MoveTo(newCellTarget, false);
-                    ActivarInput();
+                    PicarAnimation();
+                    //ActivarInput();
                 }
                 else
                 {
-                    ActivarInput();
+                    //aqui quiero entrar y no me muevo
+                    PicarAnimation();
+                    //ActivarInput();
                 }
                 
             }else if(!cellData.canPass){
 
-                ActivarInput();
+                //ActivarInput();
 
             }
 
@@ -122,7 +128,7 @@ public class PlayerController : MonoBehaviour
             SetNewCellTarget();
             newCellTarget.y += 1;
             hasMoved = true;
-            DesactivarInput();
+            //GameManager.Instance.DesactivarInput();
             //Move();
         }
     }
@@ -137,7 +143,7 @@ public class PlayerController : MonoBehaviour
             SetNewCellTarget();
             newCellTarget.y -= 1;
             hasMoved = true;
-            DesactivarInput();
+            //GameManager.Instance.DesactivarInput();
             //Move();
         }
     }
@@ -152,7 +158,7 @@ public class PlayerController : MonoBehaviour
             SetNewCellTarget();
             newCellTarget.x -= 1;
             hasMoved = true;
-            DesactivarInput();
+            //GameManager.Instance.DesactivarInput();
             //Move();
         }
     }
@@ -167,7 +173,7 @@ public class PlayerController : MonoBehaviour
             SetNewCellTarget();
             newCellTarget.x += 1;
             hasMoved = true;
-            DesactivarInput();
+            //GameManager.Instance.DesactivarInput();
             //Move();
         }
     }
@@ -177,7 +183,7 @@ public class PlayerController : MonoBehaviour
     public void Spawn(GenerateMap generateMap, Vector2Int cell)
     {
         m_GenerateMap = generateMap;
-        m_CellPosition = cell;
+        cellPosition = cell;
 
         newCellTarget = cell;
 
@@ -187,34 +193,27 @@ public class PlayerController : MonoBehaviour
 
     public void SetNewCellTarget()
     {
-        newCellTarget = m_CellPosition;
+        newCellTarget = cellPosition;
     }
 
     void MoveTo(Vector2Int cell, bool inmediate)//refactoriación del método que sirve para moverse
     {
-        m_CellPosition = cell;
+        cellPosition = cell;
         if (inmediate)
         {
             m_isMoving = false;
-            transform.position = m_GenerateMap.CellToWorld(m_CellPosition);
+            transform.position = m_GenerateMap.CellToWorld(cellPosition);
         }
         else
         {
             m_isMoving = true;
-            m_MoveTarget = m_GenerateMap.CellToWorld(m_CellPosition);
+            m_MoveTarget = m_GenerateMap.CellToWorld(cellPosition);
         }
+
     }
 
 
-    void ActivarInput()
-    {
-        InputManager.playerControls.Player.Enable();
-    }
 
-    void DesactivarInput()
-    {
-        InputManager.playerControls.Player.Disable();
-    }
 
     
 

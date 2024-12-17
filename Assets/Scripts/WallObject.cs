@@ -12,9 +12,6 @@ public class WallObject : CellObject
     public SpriteRenderer spriteRenderer;
     Sprite spriteNormal;
     Sprite spriteDaniado;
-    public static event Action<WallObject> OnDestroyWall;
-
-    public static event Action OnPlayerPicar;
 
     private void Start()
     {
@@ -35,7 +32,6 @@ public class WallObject : CellObject
     {
         hP--;
         GameManager.Instance.RestarComida(costeComida);
-        OnPlayerPicar?.Invoke();
 
 
         if (hP % 2 == 0 || hP <= 1)
@@ -46,7 +42,7 @@ public class WallObject : CellObject
 
         if (hP <= 0)
         {
-            OnDestroyWall?.Invoke(this);
+            //OnDestroyWall?.Invoke(this);
             Destroy(gameObject);
             return true;
         }

@@ -46,22 +46,17 @@ public class GenerateMap : MonoBehaviour
     private Vector2Int m_playerCurrentPositionInCells;
     private Grid m_Grid;
     private List<Vector2Int> m_EmptyCells;
-    private List<EnemyObject> m_EnemiesInGame;
+    //private List<EnemyObject> m_EnemiesInGame;
 
 
     private void OnEnable()
     {
-        EnemyObject.OnMorir += DestroyEnemyInGame;
-        WallObject.OnDestroyWall += DestroyWall;
-        
+        //EnemyObject.OnMorir += DestroyEnemyInGame; 
     }
 
     private void OnDisable()
     {
-
-        EnemyObject.OnMorir -= DestroyEnemyInGame;
-        WallObject.OnDestroyWall -= DestroyWall;
-    
+        //EnemyObject.OnMorir -= DestroyEnemyInGame;
     }
 
     public class CellData
@@ -200,19 +195,6 @@ public class GenerateMap : MonoBehaviour
 
     }*/
 
-    void CheckObject()
-    {
-
-        if (GetCellData(m_playerCurrentPositionInCells).containedObject != null)
-        {
-            if (GetCellData(m_playerCurrentPositionInCells).containedObject.TryGetComponent(out CellObject cellObject))
-            {
-                cellObject.PlayerEntered();
-            }
-        }
-     
-    }
-
     public CellData GetCellData(Vector2Int cellIndex)
     {
         if (cellIndex.x < 0 || cellIndex.x >= ancho || cellIndex.y < 0 || cellIndex.y >= altura)
@@ -220,6 +202,14 @@ public class GenerateMap : MonoBehaviour
             return null;
         }
         return m_BoardData[cellIndex.x, cellIndex.y];
+    }
+
+    void AddObject(CellObject obj, Vector2Int coord)
+    {
+        CellData data = m_BoardData[coord.x, coord.y];
+        obj.transform.position = CellToWorld(coord);
+        data.containedObject = obj;
+        obj.Init(coord);
     }
 
     //cuantos objetos a spawnear, que por cada uno vaya buscando el escenario
@@ -273,8 +263,7 @@ public class GenerateMap : MonoBehaviour
             WallObject cellObject = Instantiate(wallPrefab, CellToWorld(casilla), Quaternion.identity); //instancio el muro
             cell.containedObject = cellObject; //relleno ese hueco
 
-            cellObject.posicion = casilla; //le digo en qué posición está
-            //wallObject.hP = Random.Range(2, 4);
+            AddObject(cellObject, casilla);//le digo en qué posición está
 
             m_EmptyCells.RemoveAt(rndEmptyCasilla); //elimino el hueco libre que ahora está ocupado
 
@@ -284,7 +273,7 @@ public class GenerateMap : MonoBehaviour
 
     void SpawnEnemies()
     {
-        m_EnemiesInGame = new List<EnemyObject>();
+        //m_EnemiesInGame = new List<EnemyObject>();
         CellData cell = null;
 
         int rndEnemyCount = UnityEngine.Random.Range(minEnemies, maxEnemies+1);
@@ -301,16 +290,16 @@ public class GenerateMap : MonoBehaviour
 
             cell.containedObject = enemy; //actualizo esa celda y que contiene algo
 
-            cell.containedObject.GetComponent<CellObject>().posicion = casilla; //guardo la posicion del enemigo
+            AddObject(enemy, casilla);
 
-            m_EnemiesInGame.Add(enemy); //para saber cuántos enemigos tengo in game y poder controlarlos
+            //m_EnemiesInGame.Add(enemy); //para saber cuántos enemigos tengo in game y poder controlarlos
             m_EmptyCells.RemoveAt(rndEmptyCasilla); //elimino esa casilla libre
 
 
         }
     }
 
-    public void MoveAllEnemies()
+    /*public void MoveAllEnemies()
     {
 
         CellData cell = null;
@@ -329,9 +318,22 @@ public class GenerateMap : MonoBehaviour
 
             cell = GetCellData(enemy.posicion); //recojo la celda en la que está ahora
             cell.containedObject = enemy; //relleno la información de la nueva celda
-        }
 
+            //aqui tengo que chequear si tengo al player a un bloque de distancia
+            IsCloseToPlayer(enemy.posicion);
+        }
+    }*/
+
+    bool IsCloseToPlayer(Vector2Int enemyPos)
+    {
+        CellData cell = GetCellData(enemyPos);
+
+        
+
+
+        return false;
     }
+
 
     Vector2Int CheckDirectionEnemy(Vector2Int currentEnemyPos)
     {
@@ -373,16 +375,11 @@ public class GenerateMap : MonoBehaviour
     //para cuando mueran los enemigos
     public void DestroyEnemyInGame(EnemyObject enemy)
     {
-        m_EnemiesInGame.Remove(enemy);
+        //m_EnemiesInGame.Remove(enemy);
     }
 
 
-    //para cuando destruyamos los muros
-    public void DestroyWall(WallObject cell)
-    {
-        m_EmptyCells.Add(cell.posicion);
-        Destroy(GetCellData(cell.posicion).containedObject.gameObject);
-    }
+
 
     public void Clean()
     {

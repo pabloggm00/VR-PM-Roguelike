@@ -7,7 +7,7 @@ using UnityEngine;
 public class CellObject : MonoBehaviour
 {
 
-    public Vector2Int posicion;
+    protected Vector2Int m_Cell;
 
     public virtual void PlayerEntered()
     {
@@ -19,5 +19,9 @@ public class CellObject : MonoBehaviour
         return true;
     }
 
+    public virtual void Init(Vector2Int coord)
+    {
+        m_Cell = coord;
+    }
 
 }

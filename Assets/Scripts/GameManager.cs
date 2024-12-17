@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
 
     public int comidaInicial = 100;
     public int roundInicial = 1;
-
+    public PlayerController playerController;
     public GenerateMap mapGenerator { get;  set; }
     public  TurnManager turnManager { get; private set; }
 
@@ -74,7 +74,7 @@ public class GameManager : MonoBehaviour
   
         //Iniciar Turn manager
         turnManager = new TurnManager();
-        turnManager.OnTick += RestarComida;
+        turnManager.OnTick += RestarComidaPorMovimiento;
 
         if (mapGenerator == null)
             return;
@@ -102,12 +102,12 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void RestarComida() { 
+    public void RestarComidaPorMovimiento() { 
         
         m_comida--;
         m_FoodLabel.text = "Comida: " + m_comida;
 
-        mapGenerator.MoveAllEnemies();
+        //mapGenerator.MoveAllEnemies();
 
         IsDeath();
     }
@@ -119,6 +119,16 @@ public class GameManager : MonoBehaviour
 
         IsDeath();
 
+    }
+
+    public void ActivarInput()
+    {
+        InputManager.playerControls.Player.Enable();
+    }
+
+    public void DesactivarInput()
+    {
+        InputManager.playerControls.Player.Disable();
     }
 
     bool IsDeath()
