@@ -15,6 +15,7 @@ public class EnemyObject : CellObject
 
     public static event System.Action OnHerir;
 
+    public static event System.Action OnPlayerAtacar;
     private void Awake()
     {
         GameManager.Instance.turnManager.OnTick += EnemyTurnHappen;
@@ -40,6 +41,7 @@ public class EnemyObject : CellObject
     {
 
         m_currentHealth -= 1;
+        OnPlayerAtacar?.Invoke();
 
         if (m_currentHealth <= 0)
         {

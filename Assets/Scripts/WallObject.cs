@@ -13,6 +13,8 @@ public class WallObject : CellObject
     Sprite spriteNormal;
     Sprite spriteDaniado;
 
+    public static event Action OnPlayerPicar;
+
     private void Start()
     {
         GenerateSprite();
@@ -32,7 +34,7 @@ public class WallObject : CellObject
     {
         hP--;
         GameManager.Instance.RestarComida(costeComida);
-
+        OnPlayerPicar?.Invoke();
 
         if (hP % 2 == 0 || hP <= 1)
         {

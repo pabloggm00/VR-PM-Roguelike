@@ -35,6 +35,8 @@ public class PlayerController : MonoBehaviour
 
       
         EnemyObject.OnHerir += HerirAnimation;
+        EnemyObject.OnPlayerAtacar += PicarAnimation;
+        WallObject.OnPlayerPicar += PicarAnimation;
 
     }
 
@@ -53,7 +55,9 @@ public class PlayerController : MonoBehaviour
         InputManager.playerControls.Player.MoveRight.canceled -= GetInputMoveRight;
 
         EnemyObject.OnHerir -= HerirAnimation;
-        
+        EnemyObject.OnPlayerAtacar -= PicarAnimation;
+        WallObject.OnPlayerPicar -= PicarAnimation;
+
     }
 
     private void Start()
@@ -93,17 +97,12 @@ public class PlayerController : MonoBehaviour
                 }
                 else if (cellData.containedObject.PlayerWantsToEnter()) //compruebo si es enemigo o muro
                 {
-                    //aqui quiero entrar y me muevo
+                   
                     MoveTo(newCellTarget, false);
-                    PicarAnimation();
+
                     //ActivarInput();
                 }
-                else
-                {
-                    //aqui quiero entrar y no me muevo
-                    PicarAnimation();
-                    //ActivarInput();
-                }
+               
                 
             }else if(!cellData.canPass){
 
